@@ -1,5 +1,4 @@
 try:
-  from curses import *
+    from curses import *
 except:
-  from roguepy.pdcurses import *
-
+    from roguepy.pdcurses import *

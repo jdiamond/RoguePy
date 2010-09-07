@@ -6,150 +6,156 @@ _pdcurses = join(dirname(abspath(__file__)), 'pdcurses')
 _dll = ctypes.cdll.LoadLibrary(_pdcurses)
 
 def beep():
-  _dll.beep()
+    _dll.beep()
 
 def color_pair(n):
     return n << PDC_COLOR_SHIFT & A_COLOR
 
 def curs_set(visibility):
-  return _dll.curs_set(visibility)
+    return _dll.curs_set(visibility)
 
 def echo():
-  _dll.echo()
+    _dll.echo()
 
 def endwin():
-  _dll.endwin()
+    _dll.endwin()
 
 def flash():
-  _dll.flash()
+    _dll.flash()
 
 class MEVENT(ctypes.Structure):
-  _fields_ = [
-    ('id', ctypes.c_short),
-    ('x', ctypes.c_int),
-    ('y', ctypes.c_int),
-    ('z', ctypes.c_int),
-    ('bstate', ctypes.c_ulong)
-  ]
+    _fields_ = [
+        ('id', ctypes.c_short),
+        ('x', ctypes.c_int),
+        ('y', ctypes.c_int),
+        ('z', ctypes.c_int),
+        ('bstate', ctypes.c_ulong)
+    ]
 
 def getmouse():
-  mevent = MEVENT()
-  _dll.nc_getmouse(ctypes.byref(mevent))
-  return (mevent.id, mevent.x, mevent.y, mevent.z, mevent.bstate)
+    mevent = MEVENT()
+    _dll.nc_getmouse(ctypes.byref(mevent))
+    return (mevent.id, mevent.x, mevent.y, mevent.z, mevent.bstate)
 
 def init_pair(pair_number, fg, bg):
-  return _dll.init_pair(pair_number, fg, bg)
+    return _dll.init_pair(pair_number, fg, bg)
 
 def initscr():
-  return Window(_dll.initscr())
+    return Window(_dll.initscr())
 
 def mouseinterval(interval):
-  return _dll.mouseinterval(interval)
+    return _dll.mouseinterval(interval)
 
 def mousemask(newmask):
-  oldmask = ctypes.c_int()
-  availmask = _dll.mousemask(newmask, ctypes.byref(oldmask))
-  return (availmask, oldmask.value)
+    oldmask = ctypes.c_int()
+    availmask = _dll.mousemask(newmask, ctypes.byref(oldmask))
+    return (availmask, oldmask.value)
 
 def noecho():
-  _dll.noecho()
+    _dll.noecho()
 
 def pair_number(n):
     return (n & A_COLOR) >> PDC_COLOR_SHIFT
 
 def start_color():
-  _dll.start_color()
+    _dll.start_color()
 
 class Window:
-  def __init__(self, window):
-    self.window = window
+    def __init__(self, window):
+        self.window = window
 
-  def addch(self, *args):
-    '''[y, x], ch[, attr])'''
-    if len(args) == 1:
-      _dll.waddch(self.window, args[0])
-    elif len(args) == 2:
-      _dll.waddch(self.window, args[0] | args[1])
-    elif len(args) == 3:
-      _dll.mvwaddch(self.window, args[0], args[1], args[2])
-    elif len(args) == 4:
-      _dll.mvwaddch(self.window, args[0], args[1], args[2] | args[3])
-    else:
-      raise TypeError('addch requires 1 to 4 arguments')
+    def addch(self, *args):
+        '''[y, x], ch[, attr])'''
+        if len(args) == 1:
+            _dll.waddch(self.window, args[0])
+        elif len(args) == 2:
+            _dll.waddch(self.window, args[0] | args[1])
+        elif len(args) == 3:
+            _dll.mvwaddch(self.window, args[0], args[1], args[2])
+        elif len(args) == 4:
+            _dll.mvwaddch(self.window, args[0], args[1], args[2] | args[3])
+        else:
+            raise TypeError('addch requires 1 to 4 arguments')
 
-  def addnstr(self, *args):
-    '''[y, x], str, n[, attr]'''
-    y, x, attr = None, None, None
-    if len(args) == 2:
-      str, n = args
-    elif len(args) == 3:
-      str, n, attr = args
-    elif len(args) == 4:
-      y, x, str, n = args
-    elif len(args) == 5:
-      y, x, str, n, attr = args
-    else:
-      raise TypeError('addnstr requires 2 to 5 arguments')
-    if attr is not None:
-      old_attr = _dll.getattrs(self.window)
-      _dll.wattrset(self.window, attr)
-    if y is not None and x is not None:
-      _dll.mvwaddnstr(self.window, y, x, str, n)
-    else:
-      _dll.waddnstr(self.window, str, n)
-    if attr is not None:
-      _dll.wattrset(self.window, old_attr)
+    def addnstr(self, *args):
+        '''[y, x], str, n[, attr]'''
+        y, x, attr = None, None, None
+        if len(args) == 2:
+            str, n = args
+        elif len(args) == 3:
+            str, n, attr = args
+        elif len(args) == 4:
+            y, x, str, n = args
+        elif len(args) == 5:
+            y, x, str, n, attr = args
+        else:
+            raise TypeError('addnstr requires 2 to 5 arguments')
+        if attr is not None:
+            old_attr = _dll.getattrs(self.window)
+            _dll.wattrset(self.window, attr)
+        if y is not None and x is not None:
+            _dll.mvwaddnstr(self.window, y, x, str, n)
+        else:
+            _dll.waddnstr(self.window, str, n)
+        if attr is not None:
+            _dll.wattrset(self.window, old_attr)
 
-  def addstr(self, *args):
-    '''[y, x], str[, attr]'''
-    y, x, attr = None, None, None
-    if len(args) == 1:
-      str = args[0]
-    elif len(args) == 2:
-      str, attr = args
-    elif len(args) == 3:
-      y, x, str = args
-    elif len(args) == 4:
-      y, x, str, attr = args
-    else:
-      raise TypeError('addstr requires 1 to 4 arguments')
-    if attr is not None:
-      old_attr = _dll.getattrs(self.window)
-      _dll.wattrset(self.window, attr)
-    if y is not None and x is not None:
-      _dll.mvwaddstr(self.window, y, x, str)
-    else:
-      _dll.waddstr(self.window, str)
-    if attr is not None:
-      _dll.wattrset(self.window, old_attr)
+    def addstr(self, *args):
+        '''[y, x], str[, attr]'''
+        y, x, attr = None, None, None
+        if len(args) == 1:
+            str = args[0]
+        elif len(args) == 2:
+            str, attr = args
+        elif len(args) == 3:
+            y, x, str = args
+        elif len(args) == 4:
+            y, x, str, attr = args
+        else:
+            raise TypeError('addstr requires 1 to 4 arguments')
+        if attr is not None:
+            old_attr = _dll.getattrs(self.window)
+            _dll.wattrset(self.window, attr)
+        if y is not None and x is not None:
+            _dll.mvwaddstr(self.window, y, x, str)
+        else:
+            _dll.waddstr(self.window, str)
+        if attr is not None:
+            _dll.wattrset(self.window, old_attr)
 
-  def box(self, *args):
-    '''[vertch, horch]'''
-    if len(args) == 0:
-      vertch, horch = 0, 0
-    elif len(args) == 2:
-      vertch, horch = args
-    else:
-      raise TypeError('box requires 0 or 2 arguments')
-    _dll.box(self.window, vertch, horch)
+    def box(self, *args):
+        '''[vertch, horch]'''
+        if len(args) == 0:
+            vertch, horch = 0, 0
+        elif len(args) == 2:
+            vertch, horch = args
+        else:
+            raise TypeError('box requires 0 or 2 arguments')
+        _dll.box(self.window, vertch, horch)
 
-  def clear(self):
-    _dll.wclear(self.window)
+    def clear(self):
+        _dll.wclear(self.window)
 
-  def getch(self, *args):
-    '''[y, x]'''
-    if len(args) == 0:
-      return _dll.wgetch(self.window)
-    elif len(args) == 2:
-      return _dll.mvwgetch(self.window, args[0], args[1])
-    else:
-      raise TypeError('getch requires 0 or 2 arguments')
+    def getch(self, *args):
+        '''[y, x]'''
+        if len(args) == 0:
+            return _dll.wgetch(self.window)
+        elif len(args) == 2:
+            return _dll.mvwgetch(self.window, args[0], args[1])
+        else:
+            raise TypeError('getch requires 0 or 2 arguments')
 
-  def keypad(self, yes):
-    _dll.keypad(self.window, yes)
+    def keypad(self, yes):
+        _dll.keypad(self.window, yes)
 
-  def refresh(self):
-    _dll.wrefresh(self.window)
+    def refresh(self):
+        _dll.wrefresh(self.window)
+
+    def getmaxx(self):
+        return _dll.getmaxx(self.window)
+
+    def getmaxy(self):
+        return _dll.getmaxy(self.window)
 
 A_ATTRIBUTES = 0xffff0000
 A_NORMAL = 0
