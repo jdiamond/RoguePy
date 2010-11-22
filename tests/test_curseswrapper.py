@@ -1,3 +1,8 @@
+# This code allows you to run the tests without installing the package.
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 import roguepy.curseswrapper as curses
 
 if __name__ == '__main__':
