@@ -5,7 +5,7 @@ class Grid:
         self.rows = [[default for _ in range(width)] for _ in range(height)]
 
     def __str__(self):
-        return '\n'.join(''.join(row) for row in self.rows)
+        return '\n'.join(''.join(cell or ' ' for cell in row) for row in self.rows)
 
     def __getitem__(self, point):
         x, y = point
