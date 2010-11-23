@@ -23,3 +23,17 @@ class Grid:
     def set_points(self, points, value):
         for point in points:
             self[point] = value
+
+    def get_neighbors(self, point):
+        x, y = point
+        neighbors = []
+        if y > 0:
+            neighbors.append(self[x, y - 1])
+        if x > 0:
+            neighbors.append(self[x - 1, y])
+        if x < self.width - 1:
+            neighbors.append(self[x + 1, y])
+        if y < self.height - 1:
+            neighbors.append(self[x, y + 1])
+        return neighbors
+
