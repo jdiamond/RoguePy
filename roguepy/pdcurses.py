@@ -151,6 +151,9 @@ class Window:
     def refresh(self):
         _dll.wrefresh(self.window)
 
+    def getmaxyx(self):
+        return (self.getmaxy(), self.getmaxx())
+
     def getmaxx(self):
         return _dll.getmaxx(self.window)
 
